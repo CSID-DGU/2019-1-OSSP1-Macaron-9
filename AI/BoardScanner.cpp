@@ -1,4 +1,3 @@
-
 /* 
  * File:   BoardScanner.cpp
  * Author: axel
@@ -41,7 +40,7 @@ BoardScanner::ColorCounts BoardScanner::countColorsOn(int row, int startCol, int
     return counts;
 }
 
-BoardScanner::VerticalMatch BoardScanner::findVerticalMatch() {
+BoardScanner::VerticalMatch BoardScanner::findVerticalMatch() {					// 세로 방향으로 없애는 것
     RowColors rowColors = countRowColors();
     for (int colorInt = 0; colorInt < BlockColor::COUNT; ++colorInt) {
         BlockColor color = static_cast<BlockColor> (colorInt);
@@ -84,7 +83,7 @@ int BoardScanner::findColorOn(BlockColor color, int row, int startCol, int endCo
     return -1;
 }
 
-BlockMoveAction BoardScanner::findStackFlatteningMove() {
+BlockMoveAction BoardScanner::findStackFlatteningMove() {			// 빈 블럭이 있는 곳을 매꿔주기
     for (int row = Board::BOARD_HEIGHT - 1; row >= 1; --row) {
         for (int col = 0; col < Board::BOARD_WIDTH; ++col) {
             //can be moved left
@@ -163,9 +162,9 @@ BoardScanner::ChainMatch BoardScanner::findChainMatch() {
     }
 
     int row = 0;
-    BoardScanner::ColorCounts lowerCount;
-    BoardScanner::ColorCounts offsetCount = countColorsOn(row + area.offset, 0, Board::BOARD_WIDTH - 1);
-    ;
+    BoardScanner::ColorCounts lowerCount;			// 아래로 같은 컬러 카운트
+    BoardScanner::ColorCounts offsetCount = countColorsOn(row + area.offset, 0, Board::BOARD_WIDTH - 1);	// 위로 같은 컬러 카운트
+    ;	
 
     auto countColors = [&](int matchCol, Direction side) {
         for (int colorInt = 0; colorInt < BlockColor::COUNT; ++colorInt) {
@@ -181,7 +180,6 @@ BoardScanner::ChainMatch BoardScanner::findChainMatch() {
                 return match;
             }
         }
-
         match.found = false;
         return match;
     };

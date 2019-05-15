@@ -1,4 +1,3 @@
-
 #include <stdexcept>
 
 #include "AIBoardController.h"
@@ -9,7 +8,8 @@ _scanner(board) {
 }
 
 void AIBoardController::tick() {
-    if (_board.getState() != Board::BoardState::RUNNING || _board.getTicksRun() % 5 != 0) return; // if change this tick value, AI move slowly
+    if (_board.getState() != Board::BoardState::RUNNING || _board.getTicksRun() % 5 != 0)
+		return;
     if (!_inputQueue.empty()) {
         doInput(_inputQueue.front());
         _inputQueue.pop();
@@ -39,7 +39,7 @@ void AIBoardController::doInput(InputAction action) {
             _board.inputMoveCursor(Direction::DOWN);
             break;
         case (LEFT):
-            _board.inputMoveCursor(Direction::LEFT);
+            _board.inputMoveCursor(1::LEFT);
             break;
         case (SWAP):
             _board.inputSwapBlocks();
@@ -47,14 +47,12 @@ void AIBoardController::doInput(InputAction action) {
         case (RAISE):
             _board.inputForceStackRaise();
             break;
-
         case (WAIT):
             break;
     }
-
 }
 
-void AIBoardController::doBlockMove(int x, int y, int dx, int dy) {
+void AIBoardController::doBlockMove(int x, int y, int dx, int dy) {		// 좌우로 움직이는 것
     if (dy > y) {
         throw std::invalid_argument("Can't move block upwards");
     }
@@ -65,7 +63,6 @@ void AIBoardController::doBlockMove(int x, int y, int dx, int dy) {
             //_inputQueue.push(WAIT);
             //_inputQueue.push(WAIT);
             _inputQueue.push(RIGHT);
-
         }
     }
     if (dx < x) { //move left
@@ -83,22 +80,22 @@ void AIBoardController::doCursorMove(int x, int y) {
     int curX = _board.getCursorX();
     int curY = _board.getCursorY();
 
-    if (x > curX) {
+    if (x > curX) {		// right
         for (int i = 0; i < x - curX; i++) {
             _inputQueue.push(RIGHT);
         }
     }
-    if (x < curX) {
+    if (x < curX) {		// left
         for (int i = 0; i < curX - x; i++) {
             _inputQueue.push(LEFT);
         }
     }
-    if (y > curY) {
+    if (y > curY) {		// up
         for (int i = 0; i < y - curY; i++) {
             _inputQueue.push(UP);
         }
     }
-    if (y < curY) {
+    if (y < curY) {		// down
         for (int i = 0; i < curY - y; i++) {
             _inputQueue.push(DOWN);
         }
@@ -109,7 +106,7 @@ void AIBoardController::doCursorMove(int x, int y) {
 void AIBoardController::basicVerticalmatchStrat() {
     BoardScanner::VerticalMatch vertMatch = _scanner.findVerticalMatch();
     BlockMoveAction flatteningMove = _scanner.findStackFlatteningMove();
-    if (_board.isPanic() && flatteningMove.y != 0) {
+    if (_board.isPanic() && flatteningMove.y != 0) {			// flatteningMove.y : row
         _blockMoveQueue.push(flatteningMove);
         return;
     }
@@ -149,9 +146,7 @@ void AIBoardController::doChainMatch(BoardScanner::ChainMatch match) {
     }
     action = {col, match.row, match.col, match.row};
     _blockMoveQueue.push(action);
-
 }
 
 AIBoardController::~AIBoardController() {
 }
-

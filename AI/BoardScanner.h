@@ -54,7 +54,6 @@ public:
     virtual ~BoardScanner();
 private:
     Board& _board;
-
 };
 
 #endif /* BOARDSCANNER_H */

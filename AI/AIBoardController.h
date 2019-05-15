@@ -1,4 +1,3 @@
-
 #ifndef AIBOARDCONTROLLER_H
 #define AIBOARDCONTROLLER_H
 
@@ -7,8 +6,6 @@
 #include"MoveActions.h"
 
 #include "BoardScanner.h"
-
-
 
 class AIBoardController : public BoardController {
 public:
@@ -35,9 +32,7 @@ private:
     void doVerticalMatch(BoardScanner::VerticalMatch match);
     void doChainMatch(BoardScanner::ChainMatch match);
 
-
     void basicVerticalmatchStrat();
-
 };
 
 #endif /* AIBOARDCONTROLLER_H */

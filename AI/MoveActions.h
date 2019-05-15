@@ -1,4 +1,3 @@
-
 /* 
  * File:   MoveActions.h
  * Author: axel
