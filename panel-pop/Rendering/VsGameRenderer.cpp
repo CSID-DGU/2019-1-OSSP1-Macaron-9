@@ -35,6 +35,7 @@ VsGameRenderer::VsGameRenderer(VsGame& game) :
 			SDL_TEXTUREACCESS_TARGET, 640, 480);
 	_bg = _SDLContext.makeTextureFromImage("assets/bg1.png");
 	_2pbg = _SDLContext.makeTextureFromImage("assets/2p.png");
+	//_bomb = _SDLContext.makeTextureFromImage("assets/bomb.png"); // new
 	SDL_SetTextureBlendMode(_2pbg, SDL_BLENDMODE_BLEND);
 }
 
@@ -72,7 +73,8 @@ SDL_Texture* VsGameRenderer::renderGame() {
 	}
 	renderStatsText();
 	renderMatchPoints();
-	
+
+	if (_game.isPaused()) {
 		SDL_SetTextureColorMod(_texture, 0x50, 0x50, 0x50);
 		SDL_RenderCopy(_SDLRenderer, _texture, NULL, NULL);
 		SDL_SetTextureColorMod(_texture, 0xFF, 0xFF, 0xFF);
@@ -87,8 +89,21 @@ SDL_Texture* VsGameRenderer::renderGame() {
 		_SDLContext.renderText("PUSH START", { 255, 255, 255 },
 				_SDLContext._fontSquare, 134, 342);
 	}
-
-	return _texture;
+	if (_game.getState() == Game::State::P1WON) { // new
+		SDL_Rect sprite = { 0, 410, 150, 70 };
+		SDL_Rect pos = { 120, 180, 400, 100 };
+		SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite, &pos);
+		_SDLContext.renderText("- P1 WIN! -", { 255, 255, 255 }, _SDLContext._fontSquare, 160, 210);
+	}
+	if (_game.getState() == Game::State::P2WON) { // new
+		_SDLContext.renderText("- P2 WIN! -", { 255, 255, 255 }, _SDLContext._fontSquare, 160, 210);
+	}
+/*
+	if (_game.getState() == Game::State::BOMB) { //new
+		SDL_Rect bomb = { 258, 307, 38, 120 };
+		SDL_RenderCopy(_SDLRenderer, gbq, NULL, &gbqp);			
+	}
+*/	return _texture;
 }
 
 void VsGameRenderer::renderStatsText() {
