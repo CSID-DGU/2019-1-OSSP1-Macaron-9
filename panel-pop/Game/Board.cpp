@@ -9,8 +9,10 @@
 
 #include <iostream>
 
+#include "../Config/ConfigHandler.h" // new
 #include "BoardEventHandler.h"
 #include "VsGame.h"
+using namespace std;
 
 Board::Board(Game* game) :
 _game(game),
@@ -22,7 +24,7 @@ _cursorX(2),
 _cursorY(5),
 _tickMatched(0),
 _stackOffset(0),
-_stackRaiseTicks(10),
+_stackRaiseTicks(ConfigHandler::getInstance().getEndlessFinalLevel()), // modified
 _stackRaiseTimer(0),
 _stackRaiseForced(false),
 _graceTimer(0),
@@ -35,6 +37,13 @@ _panic(false),
 _score(0) {
     fillRandom();
     fillBufferRow();
+}
+
+Item::Item() {
+    // count = count + 1; // new
+    bomb = 0;
+    cross = 0;
+    same_color = 0;
 }
 
 void Board::setEventHandler(BoardEventHandler* eh) {
@@ -257,18 +266,70 @@ void Board::inputSwapBlocks() {
         return;
     }
     if (!(swappable(_cursorY, _cursorX) && swappable(_cursorY, _cursorX + 1))
-            || !(_tiles[_cursorY][_cursorX].type == BLOCK					//Tile _tiles[BOARD_HEIGHT][BOARD_WIDTH];
-            || _tiles[_cursorY][_cursorX + 1].type == BLOCK)) {0
+            || !(_tiles[_cursorY][_cursorX].type == BLOCK
+            || _tiles[_cursorY][_cursorX + 1].type == BLOCK)) {
         return;
     }
     _tiles[_cursorY][_cursorX].b._state = SWAPPING_RIGHT;
     _tiles[_cursorY][_cursorX + 1].b._state = SWAPPING_LEFT;
 
-    _eventHandler->swap();				//void BoardEventHandler::swap() {
-										//Mix_PlayChannel(-1, _SDLContext._sfxSwap, 0);
-										//}
+    _eventHandler->swap();
 }
 
+void Board::inputBomb() {		// new
+    if (_state != RUNNING) {
+	return;
+    }
+
+    //_tiles[_cursorY][_cursorX].b._state = EXPLODING;
+    if (_item.bomb != 0) {
+	    for (int i = _cursorY - 1; i <= _cursorY + 1; i++) {
+		for (int j = _cursorX - 1; j <= _cursorX + 1; j++) {
+		    _tiles[i][j].b._state = MATCHED;	
+		}
+    	    }
+    //handleMatchedBlocks();
+
+//    _itemstate = BOMB;
+    _item.bomb--;
+    }
+    cout << "number of item (bomb) = " << _item.bomb << endl;
+}
+
+void Board::inputCross() {		// new
+    if (_state != RUNNING) {
+        return;
+    }
+
+   for (int i=0; i<BOARD_WIDTH; i++)
+	_tiles[_cursorY][i].b._state = MATCHED;
+}
+
+void Board::inputSameColor() {		// new
+    if (_state != RUNNING) {
+        return;
+    }
+
+    for (int i = 0; i < BOARD_WIDTH; i++) {
+	for (int j = 0; j < BOARD_HEIGHT; j++) {
+	    if (_tiles[_cursorX][_cursorY].b._color == _tiles[i][j].b._color)
+		_tiles[i][j].b._state = MATCHED;
+	}
+    }
+
+//    samecolor--;
+    _itemstate = SAME_COLOR;
+} 
+
+/*
+int Board::getHammer() { // new
+    return _item.hammer;
+}
+
+void Board::setHammer(Item _item) { // new
+    this->hammer = 0;
+}
+*/
 void Board::initTick() {
     _tickMatched = 0;
     _tickChain = false;
@@ -432,7 +493,7 @@ void Board::handleTriggeredBlocks() {
             it->_transformationTimer = 0;
             it->_state = GarbageBlockState::TRANSFORMING;
             it->_transformationTicks = animStart;
-        }f
+        }
     }
 }
 
@@ -524,7 +585,7 @@ void Board::swapBlocks(int row, int col) {
     Tile& swapLeft = _tiles[row][col + 1];
     if (swapLeft.b._state == SWAPPING_LEFT) {
         Tile tmp = swapLeft;
-        swapLeft = swapRight
+        swapLeft = swapRight;
         swapRight = tmp;
     } else {
         std::cout << "CAN'T SWAP!!\n";
@@ -803,6 +864,10 @@ Board::BoardState Board::getState() const {
     return _state;
 }
 
+Board::ItemState Board::getItemState() const {	// new
+    return _itemstate;
+}
+
 bool Board::isTickChain() const {
     return _tickChain;
 }
@@ -921,5 +986,4 @@ void Board::comboScoring() {
         _score += (_chainCounter - 4) * 20;
     }
 }
-
 
