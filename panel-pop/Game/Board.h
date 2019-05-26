@@ -27,9 +27,18 @@ enum TileType {
     AIR, BLOCK, GARBAGE
 };
 
+class Item { // new
+public:
+    Item();
+    int _count;
+
+    int bomb;
+    int cross;
+    int same_color;
+};
+
 class Board {
 public:
-
     struct Tile {
         Tile();
 
@@ -45,9 +54,13 @@ public:
         int size;
         int spawnTimer;
     };
+    
+    enum ItemState { // new
+	BOMB, CROSS, SAME_COLOR
+    };
 
     enum BoardState {
-        RUNNING, COUNTDOWN, WON, GAME_OVER
+        RUNNING, COUNTDOWN, WON, GAME_OVER // , P1WON, P2WON // new
     };
 
     Board(Game*);
@@ -61,6 +74,9 @@ public:
     void inputMoveCursor(Direction);
     void inputSwapBlocks();
     void inputForceStackRaise();
+    void inputBomb(); // new
+    void inputCross();	// new
+    void inputSameColor(); // new
     void queueGarbage(bool, int, GarbageBlockType);
 
     static const int BASE_EXPLOSION_TICKS = 61;
@@ -75,6 +91,7 @@ public:
     static const int STACK_RAISE_STEPS = 32;
     static const int COUNTDOWN_MS = 3000;
 
+    ItemState getItemState() const;
     bool hasActiveBlocks() const;
     const Tile& getBufferRow(int) const;
     bool getWarnColumn(int) const;
@@ -102,6 +119,7 @@ public:
     void win();
     Game& getGame() const;
     uint32_t getTime() const;
+    Item _item; // new
 
 private:
     Tile _tiles[BOARD_HEIGHT][BOARD_WIDTH];
@@ -109,6 +127,7 @@ private:
     std::list<GarbageBlock> _garbageBlocks;
     std::list<GarbageSpawn> _garbageQueue;
 
+    ItemState _itemstate; // new
     Game* _game;
     BoardState _state;
     BoardEventHandler* _eventHandler;
