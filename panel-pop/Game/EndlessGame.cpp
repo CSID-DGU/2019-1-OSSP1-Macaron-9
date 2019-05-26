@@ -18,6 +18,7 @@ class BoardEventHandler;
 EndlessGame::EndlessGame(GameEventHandler* geh) :
 Game(geh),
 _board(this),
+_finalLevel(ConfigHandler::getInstance().getEndlessFinalLevel()), // new
 _highScore(ConfigHandler::getInstance().getEndlessHighScore()) {
 
 }
@@ -55,6 +56,10 @@ void EndlessGame::tick() {
             _highScore = _board.getScore();
         }
 
+	if ((11 - _board.getStackRaiseTicks()) > _finalLevel) {	// new
+	    _finalLevel = (11 - _board.getStackRaiseTicks()); 
+	}
+
         handleEnd();
         _eventHandler->tickEnd();
     }
@@ -68,8 +73,20 @@ int EndlessGame::getHighScore() const {
     return _highScore;
 }
 
+int EndlessGame::getFinalLevel() const { // new
+    return _finalLevel;
+}
+
 void EndlessGame::handleEnd() {
     if (_board.getState() == Board::GAME_OVER) {
+	
+	if (_finalLevel == 11) { // new
+	    ConfigHandler::getInstance().setEndlessFinalLevel(0);
+	}
+
+	else { // new
+	    ConfigHandler::getInstance().setEndlessFinalLevel(_finalLevel);
+	}
 
         ConfigHandler::getInstance().setEndlessHighScore(_highScore);
         ConfigHandler::getInstance().saveConfig();
