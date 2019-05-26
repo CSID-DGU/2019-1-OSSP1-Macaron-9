@@ -18,10 +18,12 @@ public:
 	void reset();
 	void tick();
 	Board& getBoard(int);
+	int getFinalLevel() const; // new
 	int getHighScore() const;
 
 private:
 	Board _board;
+	int _finalLevel; // new
 	int _highScore;
 	void handleEnd();
 };
