@@ -11,14 +11,27 @@
 #include "Board.h"
 #include "Game.h"
 
+/*
+class Item {
+public:
+   Item();
+   ~Item();
+   void HAMMER();
+   void CROSS();
+   void SAME_COLOR();
+private:
+   int HAMMER;
+   int CROSS;
+   int SAME_COLOR;
+};
+*/
+
 class GameEventHandler;
 
 class VsGame : public Game {
 public:
 
     VsGame(GameEventHandler*);
-
-
 
     static const int MATCH_POINTS = 2;
 
