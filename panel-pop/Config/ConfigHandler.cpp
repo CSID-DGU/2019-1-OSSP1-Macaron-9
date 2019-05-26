@@ -30,7 +30,7 @@ bool ConfigHandler::loadConfig() {
 	try {
 		boost::property_tree::read_ini(CONFIG_FILENAME, _settingsTree);
 	} catch (std::exception& e) {
-		std::cerr << "error in reading config file, using defaults..."			//cerr : 표준 에러 스트림
+		std::cerr << "error in reading config file, using defaults..."
 				<< std::endl;
 		std::cerr << e.what();
 		return false;
@@ -38,22 +38,22 @@ bool ConfigHandler::loadConfig() {
 	return true;
 }
 
-bool ConfigHandler::saveConfig() {		// 설정 저장
+bool ConfigHandler::saveConfig() {
 	boost::property_tree::write_ini(CONFIG_FILENAME, _settingsTree);
 	return true;
 }
 
 KeyConfig ConfigHandler::getKeyConfig(int player) {
 	KeyConfig conf;
-	std::ostringstream confKey;			// ostringstream 문자열 계속 추가
+	std::ostringstream confKey;
 	std::string name;
 
 	try {
 
 #define X(key) confKey.clear();\
 	confKey.str("");\
-	confKey << "keys.p" << player << "_" << #key;\		
-	name = _settingsTree.get<std::string>(confKey.str());\		
+	confKey << "keys.p" << player << "_" << #key;\
+	name = _settingsTree.get<std::string>(confKey.str());\
 	conf.key = SDL_GetScancodeFromName(name.c_str());
 
 		KEYS
@@ -75,7 +75,7 @@ void ConfigHandler::setKeyConfig(KeyConfig config, int player) {
 
 #define X(key) confKey.clear();\
 		confKey.str("");\
-		confKey << "keys.p" << player << "_" << #key;\		// 키 작성
+		confKey << "keys.p" << player << "_" << #key;\
 		_settingsTree.put(confKey.str(), SDL_GetScancodeName((SDL_Scancode) config.key));
 
 	KEYS
@@ -85,24 +85,24 @@ void ConfigHandler::setKeyConfig(KeyConfig config, int player) {
 	StateManager::getInstance().setKeys(config, player);
 }
 
-void ConfigHandler::setFullscreen(bool fs) {	// 전체화면
+void ConfigHandler::setFullscreen(bool fs) {
 	_settingsTree.put("video.fullscreen", fs);
 	if (fs != SDLContext::getInstance().isFullscreen()) {
 		SDLContext::getInstance().toggleFullscreen();
 	}
 }
 
-void ConfigHandler::setMusicVolume(int vol) {	// 음악 볼륨
+void ConfigHandler::setMusicVolume(int vol) {
 	_settingsTree.put("audio.music_volume", vol);
 	Mix_VolumeMusic(vol);
 }
 
-void ConfigHandler::setSfxVolume(int vol) {		// 특수효과 볼륨
+void ConfigHandler::setSfxVolume(int vol) {
 	_settingsTree.put("audio.sfx_volume", vol);
 	Mix_Volume(-1, vol);
 }
 
-bool ConfigHandler::getFullscreen() {			
+bool ConfigHandler::getFullscreen() {
 	return _settingsTree.get("video.fullscreen", false);
 }
 
@@ -114,10 +114,18 @@ int ConfigHandler::getSfxVolume() {
 	return _settingsTree.get("audio.sfx_volume", MIX_MAX_VOLUME);
 }
 
+int ConfigHandler::getEndlessFinalLevel() {
+	return _settingsTree.get("endless.final_level", 0); // new
+}
+
+void ConfigHandler::setEndlessFinalLevel(int level) { // new
+	_settingsTree.put("endless.final_level", level);
+}
+
 int ConfigHandler::getEndlessHighScore() {
 	return _settingsTree.get("endless.high_score", 0);
 }
 
-void ConfigHandler::setEndlessHighScore(int score) {	// 최고 점수
+void ConfigHandler::setEndlessHighScore(int score) {
 	_settingsTree.put("endless.high_score", score);
 }
