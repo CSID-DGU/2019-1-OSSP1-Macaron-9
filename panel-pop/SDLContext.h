@@ -14,11 +14,11 @@
 
 class SDLContext {
 public:
-    static const int WINDOW_WIDTH = 640, WINDOW_HEIGHT = 480;		// window Å©±â
+    static const int WINDOW_WIDTH = 640, WINDOW_HEIGHT = 480;		// window Ã…Â©Â±Ã¢
 
     static SDLContext& getInstance();
     bool init();
-    void tearDown();		// ·»´õ·¯, À©µµ¿ì ¼Ò¸ê
+    void tearDown();		// Â·Â»Â´ÃµÂ·Â¯, Ã€Â©ÂµÂµÂ¿Ã¬ Â¼Ã’Â¸Ãª
     SDL_Renderer* getRenderer();
     SDL_Texture* getSpriteSheet();
     void renderTextureToWindow(SDL_Texture*);
@@ -31,6 +31,7 @@ public:
 
     TTF_Font* _fontPs;
     TTF_Font* _fontSquare;
+    TTF_Font* _fontSquare2;		// new
 
     Mix_Music* _musicBgIntro;
     Mix_Music* _musicBgLoop;
