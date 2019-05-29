@@ -11,6 +11,8 @@
 #include "BoardRenderer.h"
 #include "GameRenderer.h"
 #include "GbQueueRenderer.h"
+#include <iostream>		// new
+using std::string;
 
 class VsGame;
 
@@ -46,6 +48,8 @@ private:
 	void renderStatsText();
 	void renderMatchPoints();
 	void handleShake();
+	
+	void ItemNum();		// 아이템 개수 나타내는 함수
 };
 
 #endif /* VSGAMERENDERER_H_ */
