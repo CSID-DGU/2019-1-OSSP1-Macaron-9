@@ -26,6 +26,7 @@
 SDLContext::SDLContext() :
 _fontPs(nullptr),
 _fontSquare(nullptr),
+_fontSquare2(nullptr),		// new  ì•„ì´í…œ ê°œìˆ˜ ë‚˜íƒ€ë‚¼ ë•Œ ê¸€ì”¨ í¬ê¸° ë³€ê²½í•˜ê¸° ìœ„í•¨
 _musicBgIntro(nullptr),
 _musicBgLoop(nullptr),
 _musicPanic(nullptr),
@@ -118,6 +119,7 @@ bool SDLContext::loadSpriteSheet() {
 bool SDLContext::loadFonts() {
     _fontPs = TTF_OpenFont("assets/fonts/PressStart2P.ttf", 16);
     _fontSquare = TTF_OpenFont("assets/fonts/square_sans_serif_7.ttf", 48);
+    _fontSquare2 = TTF_OpenFont("assets/fonts/square_sans_serif_7.ttf", 20);		// new
     if (_fontPs == NULL || _fontSquare == NULL) {
         std::cout << TTF_GetError();
         return false;
@@ -174,8 +176,8 @@ void SDLContext::toggleFullscreen() {
 }
 
 void SDLContext::tearDown() {
-    SDL_DestroyRenderer(_renderer);	// ´õ ÀÌ»ó »ç¿ëÇÏÁö ¾Ê´Â ·»´õ·¯ ¼Ò¸ê
-    SDL_DestroyWindow(_window);		// ´õ ÀÌ»ó »ç¿ëÇÏÁö ¾Ê´Â window ¼Ò¸ê
+    SDL_DestroyRenderer(_renderer);	// ë” ì´ìƒ ì‚¬ìš©í•˜ì§€ ì•ŠëŠ” ë Œë”ëŸ¬ ì†Œë©¸
+    SDL_DestroyWindow(_window);		// ë” ì´ìƒ ì‚¬ìš©í•˜ì§€ ì•ŠëŠ” window ì†Œë©¸
     SDL_Quit();
 }
 
