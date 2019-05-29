@@ -15,6 +15,8 @@
 #include <iomanip>
 #include <sstream>
 #include <math.h>
+#include <iostream>	// new
+#include <string>	// new
 
 #include "../Game/Board.h"
 #include "../Game/Game.h"
@@ -69,6 +71,8 @@ SDL_Texture* VsGameRenderer::renderGame() {
 		gbqp.x = 344;
 		SDL_RenderCopy(_SDLRenderer, gbq2, NULL, &gbqp);
 		renderParticles();
+		
+		ItemNum();		// new 아이템 개수 나타냄
 
 	}
 	renderStatsText();
@@ -166,6 +170,22 @@ void VsGameRenderer::handleShake() {
 	if (_b1Shake > 0) {
 		--_b1Shake;
 	}
+}
+
+
+// 아이템 개수를 나타내는 함수
+void VsGameRenderer::ItemNum() {
+
+_SDLContext.renderText(std::to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 }, _SDLContext._fontSquare2, 1, 35);
+_SDLContext.renderText(std::to_string(ConfigHandler::getInstance().getNumberOfP1Cross()), { 255, 255, 255 }, _SDLContext._fontSquare2, 1, 80);
+_SDLContext.renderText(std::to_string(ConfigHandler::getInstance().getNumberOfP1SameColor()), { 255, 255, 255 }, _SDLContext._fontSquare2, 1, 125);
+
+
+_SDLContext.renderText(std::to_string(ConfigHandler::getInstance().getNumberOfP2Bomb()), { 255, 255, 255 }, _SDLContext._fontSquare2, 630, 35);
+_SDLContext.renderText(std::to_string(ConfigHandler::getInstance().getNumberOfP2Cross()), { 255, 255, 255 }, _SDLContext._fontSquare2, 630, 80);
+_SDLContext.renderText(std::to_string(ConfigHandler::getInstance().getNumberOfP2SameColor()), { 255, 255, 255 }, _SDLContext._fontSquare2, 630, 125);
+
+
 }
 
 void VsGameRenderer::renderBoard(int id) {
