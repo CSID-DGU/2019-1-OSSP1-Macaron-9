@@ -37,6 +37,24 @@ public:
 
 	int getEndlessFinalLevel(); // new
 	void setEndlessFinalLevel(int); // new
+	
+	/* -------- P1 Item -------- */
+	int getNumberOfP1Bomb();
+	void setNumberOfP1Bomb(int);
+	int getNumberOfP1Cross();
+	void setNumberOfP1Cross(int);
+	int getNumberOfP1SameColor();
+	void setNumberOfP1SameColor(int);
+
+	/* -------- P2 Item -------- */
+	int getNumberOfP2Bomb();
+	void setNumberOfP2Bomb(int);
+	int getNumberOfP2Cross();
+	void setNumberOfP2Cross(int);
+	int getNumberOfP2SameColor();
+	void setNumberOfP2SameColor(int);
+	
+	
 	int getEndlessHighScore();
 	void setEndlessHighScore(int);
 
