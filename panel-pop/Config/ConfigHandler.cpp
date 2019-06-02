@@ -122,6 +122,60 @@ void ConfigHandler::setEndlessFinalLevel(int level) { // new
 	_settingsTree.put("endless.final_level", level);
 }
 
+/* -------- P1 Item -------- */
+
+int ConfigHandler::getNumberOfP1Bomb() { // new
+	return _settingsTree.get("item.p1_bomb", 0);
+}
+
+void ConfigHandler::setNumberOfP1Bomb(int p1_bomb) { // new
+	_settingsTree.put("item.p1_bomb", p1_bomb);
+}
+
+int ConfigHandler::getNumberOfP1Cross() { // new
+	return _settingsTree.get("item.p1_cross", 0);
+}
+
+void ConfigHandler::setNumberOfP1Cross(int p1_cross) { // new
+	_settingsTree.put("item.p1_cross", p1_cross);
+}
+
+int ConfigHandler::getNumberOfP1SameColor() { // new
+	return _settingsTree.get("item.p1_same_color", 0);
+}
+
+void ConfigHandler::setNumberOfP1SameColor(int p1_same_color) { // new
+	_settingsTree.put("item.p1_same_color", p1_same_color);
+}
+
+/* -------- P2 Item -------- */
+
+int ConfigHandler::getNumberOfP2Bomb() { // new
+	return _settingsTree.get("item.p2_bomb", 0);
+}
+
+void ConfigHandler::setNumberOfP2Bomb(int p2_bomb) { // new
+	_settingsTree.put("item.p2_bomb", p2_bomb);
+}
+
+int ConfigHandler::getNumberOfP2Cross() { // new
+	return _settingsTree.get("item.p2_cross", 0);
+}
+
+void ConfigHandler::setNumberOfP2Cross(int p2_cross) { // new
+	_settingsTree.put("item.p2_cross", p2_cross);
+}
+
+int ConfigHandler::getNumberOfP2SameColor() { // new
+	return _settingsTree.get("item.p2_same_color", 0);
+}
+
+void ConfigHandler::setNumberOfP2SameColor(int p2_same_color) { // new
+	_settingsTree.put("item.p2_same_color", p2_same_color);
+}
+
+///////////////////////////////////
+
 int ConfigHandler::getEndlessHighScore() {
 	return _settingsTree.get("endless.high_score", 0);
 }
