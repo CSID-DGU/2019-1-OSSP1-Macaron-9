@@ -8,6 +8,7 @@
 #include "VsGame.h"
 #include <SDL2/SDL_timer.h>
 
+#include "../Config/ConfigHandler.h"
 #include "BoardEventHandler.h"
 #include "GameEventHandler.h"
 #include "GarbageBlock.h"
@@ -26,47 +27,41 @@
 #include "GarbageBlock.h"
 #include "../SDLContext.h"
 
+
+
 VsGame::VsGame(GameEventHandler* geh) :
 Game(geh),
 _board0(this),
 _board1(this),
-_p1MatchPoints(0),
-_p2MatchPoints(0),
+_p1MatchPoints(0), // new
+_p2MatchPoints(0), // new
 _p1Points(0),
 _p2Points(0) { // new
 }
-
-/*
-BoardRenderer::BoardRenderer(const Board& board) : // new
-				_board(board) {
-	_texture = SDL_CreateTexture(_SDLRenderer, SDL_PIXELFORMAT_RGBA8888,
-			SDL_TEXTUREACCESS_TARGET, BOARD_WIDTH, BOARD_HEIGHT);
-	SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
-	_winText = _SDLContext.makeTextureFromFont("WIN!", { 255, 255, 255 },
-			_SDLContext._fontSquare);
-	_loseText = _SDLContext.makeTextureFromFont("LOSE!", { 255, 255, 255 },
-			_SDLContext._fontSquare);
-}
-*/
-
-/*
-Item p1_item;
-Item p2_item;
-*/
-
 
 void VsGame::handleEnd() {
     if (_board0.getState() == Board::GAME_OVER || _board1.getState() == Board::GAME_OVER) {
         if (_board0.getState() == Board::RUNNING) {
             _board0.win();
             ++_p1MatchPoints;
-	    _board0._item.bomb++;		// new
-	    std::cout << "P1 bomb: " << _board0._item.bomb << std::endl;
+	    _board0._bomb++; // new
+	    _board0._cross++; // new
+	    _board0._same_color++; // new
+	    ConfigHandler::getInstance().setNumberOfP1Bomb(_board0._bomb); // new
+	    ConfigHandler::getInstance().setNumberOfP1Cross(_board0._cross); // new
+	    ConfigHandler::getInstance().setNumberOfP1SameColor(_board0._same_color); // new
+	    ConfigHandler::getInstance().saveConfig(); // new
+
         } else if (_board1.getState() == Board::RUNNING) {
             _board1.win();
             ++_p2MatchPoints;
-	    _board1._item.bomb++;		// new
-	    std::cout << "P2 bomb: " << _board1._item.bomb << std::endl;
+	    _board1._bomb++; // new
+	    _board1._cross++; // new
+	    _board1._same_color++; // new
+	    ConfigHandler::getInstance().setNumberOfP2Bomb(_board1._bomb); // new
+	    ConfigHandler::getInstance().setNumberOfP2Cross(_board1._cross); // new
+	    ConfigHandler::getInstance().setNumberOfP2SameColor(_board1._same_color); // new
+	    ConfigHandler::getInstance().saveConfig(); // new
         }
 
         if (_p1MatchPoints >= MATCH_POINTS) {
@@ -80,41 +75,54 @@ void VsGame::handleEnd() {
             ++_p2Points;
         }
 
-/*
-	    	SDL_Rect pos = { 2, 200 };		//////////////////////
-		SDL_QueryTexture(_winText, NULL, NULL, &pos.w, &pos.h);
-		pos.x = (BOARD_WIDTH - pos.w) / 2;
-		SDL_RenderCopy(_SDLRenderer, _winText, NULL, &pos);
-*/
-/*
-	else if (_p2Points == 3) { // new
-	    _p1Points = 0;
-	    _p2Points = 0; */
-/*
-	   	SDL_Rect pos = { 2, 200 };		//////////////////////
-		SDL_QueryTexture(_winText, NULL, NULL, &pos.w, &pos.h);
-		pos.x = (BOARD_WIDTH - pos.w) / 2;
-		SDL_RenderCopy(_SDLRenderer, _winText, NULL, &pos);
-*/
-
         _pausedTime = SDL_GetTicks() - _startTime;
-        if (_p1Points == 2) { // new
+        if (_p1Points == 3) { // new
 	    _p1Points = 0;
 	    _p2Points = 0;
 	   
 	    _state = State::P1WON;
+	/* ----------- reset number of item ----------- */
+	    ConfigHandler::getInstance().setNumberOfP1Bomb(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP1Cross(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP1SameColor(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2Bomb(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2Cross(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2SameColor(0); // new
+
+    	    ConfigHandler::getInstance().saveConfig(); // new  
+	/* ----------- reset number of item ----------- */
 	}
-        else if (_p2Points == 2) { // new
+        else if (_p2Points == 3) { // new
 	    _p1Points = 0;
 	    _p2Points = 0;
 	   
 	    _state = State::P2WON;
+	/* ----------- reset number of item ----------- */
+	    ConfigHandler::getInstance().setNumberOfP1Bomb(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP1Cross(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP1SameColor(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2Bomb(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2Cross(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2SameColor(0); // new
+	/* ----------- reset number of item ----------- */
+    	    ConfigHandler::getInstance().saveConfig(); // new
 	}
 	else _state = State::ENDED;
     }
 }
 
 void VsGame::tick() {
+_board0._stackRaiseTicks =10;		///////////////////
+_board1._stackRaiseTicks=10;
+   // _board0._mode = Board::VS;			////////////////////////////////////
+    //_board1._mode = Board::VS;			////////////////////////////////////
+
+	    _board0._bomb = ConfigHandler::getInstance().getNumberOfP1Bomb(); // new
+	    _board0._cross = ConfigHandler::getInstance().getNumberOfP1Cross(); // new
+	    _board0._same_color = ConfigHandler::getInstance().getNumberOfP1SameColor(); // new
+	    _board1._bomb = ConfigHandler::getInstance().getNumberOfP2Bomb(); // new
+	    _board1._cross = ConfigHandler::getInstance().getNumberOfP2Cross(); // new
+	    _board1._same_color = ConfigHandler::getInstance().getNumberOfP2SameColor(); // new
 
     if (_board0.getState() == Board::COUNTDOWN) {
         _eventHandler->countdown(getTime());
