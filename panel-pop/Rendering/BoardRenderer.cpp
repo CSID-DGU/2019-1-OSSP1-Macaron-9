@@ -6,6 +6,7 @@
  */
 
 #include "BoardRenderer.h"
+#include "Particle.h" //new
 
 #include <math.h>
 #include <stddef.h>
@@ -18,10 +19,11 @@
 #include "../Game/Block.h"
 #include "../Game/GarbageBlock.h"
 #include "../SDLContext.h"
+using namespace std;
 
 const int BoardRenderer::BOARD_WIDTH = 192;
 const int BoardRenderer::BOARD_HEIGHT = 384;
-const int BoardRenderer::TILE_SIZE = 32; 
+const int BoardRenderer::TILE_SIZE = 32;
 const int BoardRenderer::CURSOR_ANIM_MS = 500;
 
 BoardRenderer::BoardRenderer(const Board& board) :
@@ -29,6 +31,7 @@ BoardRenderer::BoardRenderer(const Board& board) :
 	_texture = SDL_CreateTexture(_SDLRenderer, SDL_PIXELFORMAT_RGBA8888,
 			SDL_TEXTUREACCESS_TARGET, BOARD_WIDTH, BOARD_HEIGHT);
 	SDL_SetTextureBlendMode(_texture, SDL_BLENDMODE_BLEND);
+
 	_readyText = _SDLContext.makeTextureFromFont("READY", { 255, 255, 255 },
 			_SDLContext._fontSquare);
 	_3Text = _SDLContext.makeTextureFromFont("3", { 255, 255, 255 },
@@ -43,6 +46,31 @@ BoardRenderer::BoardRenderer(const Board& board) :
 			_SDLContext._fontSquare);
 	_loseText = _SDLContext.makeTextureFromFont("LOSE!", { 255, 255, 255 },
 			_SDLContext._fontSquare);
+
+
+/*
+	// new 아이템 개수 나타냄
+
+	_p1bomb = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 },
+			_SDLContext._fontSquare);
+	_p1cross = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP1Cross()), { 255, 255, 255 },
+			_SDLContext._fontSquare);
+	_p1samecolor = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP1SameColor()), { 255, 255, 255 },
+			_SDLContext._fontSquare);
+
+	_p2bomb = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP2Bomb()), { 255, 255, 255 },
+			_SDLContext._fontSquare);
+	_p2cross = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP2Cross()), { 255, 255, 255 },
+			_SDLContext._fontSquare);
+	_p2samecolor = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP2SameColor()), { 255, 255, 255 },
+			_SDLContext._fontSquare);
+
+*/
+
+
+
+
+
 }
 
 void BoardRenderer::tick() {
@@ -93,6 +121,47 @@ void BoardRenderer::drawGameOver() {
 	}
 }
 
+
+
+
+
+//void BoardRenderer::ItemNum() {
+/*
+	SDL_Rect pos = { 5, 10 };
+	SDL_QueryTexture(_p1bomb, NULL, NULL, &pos.w, &pos.h);
+	//pos.x = 5;
+	SDL_RenderCopy(_SDLRenderer, _p1bomb, NULL, &pos);
+*/
+
+	//_p1bomb = to_string(ConfigHandler::getInstance().getNumberOfP1Bomb());
+
+
+//	SDL_Rect sprite = { 0, 410, 150, 70 };
+//	SDL_Rect pos = { 20, 20, 20, 20 };
+//	SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite, &pos);
+
+	//int x = pos.x + 20;
+	//int y = pos.y + 8;
+
+	//_SDLContext.renderText(to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 }, _SDLContext._fontPs, 20,	20);
+
+
+
+	//	_SDLContext.renderText(to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 },
+	//			_SDLContext._fontSquare, 10, 10);
+
+	//	_SDLContext.renderText("PUSH START", { 255, 255, 255 },
+	//			_SDLContext._fontSquare, 134, 342);
+
+//}
+
+
+
+
+
+
+
+
 SDL_Texture* BoardRenderer::renderBoard() {
 	SDL_SetRenderTarget(_SDLRenderer, _texture);
 	SDL_SetRenderDrawColor(_SDLRenderer, 0xFF, 0xFF, 0xFF, 0x00);
@@ -101,6 +170,10 @@ SDL_Texture* BoardRenderer::renderBoard() {
 	drawBlocks();
 	drawBufferRow();
 	drawGarbageBlocks();
+
+	//if (_board.getState() == Board::RUNNING)			// newf
+	//	ItemNum();
+
 	//drawGrid();
 	if (_board.getState() == Board::COUNTDOWN
 			|| _board.getState() == Board::RUNNING) {
@@ -228,6 +301,28 @@ SDL_Rect BoardRenderer::getBlockSprite(const Block& block) {
 		sprite.x = 0;
 	}
 	if (block._state == EXPLODING) {
+
+			if (_board.getItemState() == Board::BOMB) { // new
+			SDL_Rect sprite = { 245, 320, 100, 100 };
+			//if (_board.getTime() % (2 * CURSOR_ANIM_MS) >= CURSOR_ANIM_MS) {
+			//	sprite.x += 100;
+			//}	
+				if (block._explosionTimer % 5 == 0) {
+					sprite.x = 145;
+				} else if (block._explosionTimer % 5 == 1) {
+					sprite.x = 245;
+				} else if (block._explosionTimer % 5 == 2) {
+					sprite.x = 345;
+				} else if (block._explosionTimer % 5 == 3) {
+					sprite.x = 445;
+				}else {
+					sprite.x = 545;
+				}	
+
+				SDL_Rect pos = { (_board.getCursorX()-1) * TILE_SIZE - 6, (BOARD_HEIGHT - (_board.getCursorY() + 2) * TILE_SIZE) - _board.getStackOffset() - 6, 120, 120 };		// sprite가 나타나는 위치 수정 완료
+				SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite, &pos);
+			}
+	
 		if (block._explosionTimer <= BLINK_TIME) {
 			if (block._explosionTimer % 2 == 0) {
 				sprite.y = 0;
@@ -239,6 +334,10 @@ SDL_Rect BoardRenderer::getBlockSprite(const Block& block) {
 				sprite.y = 128;
 			}
 		}
+
+
+
+
 	} else if (_board.getState() == Board::GAME_OVER) {
 		sprite.y = 128;
 	} else {
@@ -406,7 +505,7 @@ void BoardRenderer::drawGarbageBlocks() {
 						&& time / ticks >= block / size) { //block has been revealed
 					if (ry == 0) {
 						//draw revealed block
-						SDL_Rect sprite = getBlockSprite
+						SDL_Rect sprite = getBlockSprite(
 								it->getBufferRow(it->getW() - rx - 1));
 						SDL_SetTextureColorMod(_spriteSheet, 0x50, 0x50, 0x50);
 						SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite,
@@ -430,10 +529,19 @@ void BoardRenderer::drawCursor() {
 	if (_board.getTime() % (2 * CURSOR_ANIM_MS) >= CURSOR_ANIM_MS) {
 		sprite.y += 44;
 	}
-	SDL_Rect pos = { (_board.getCursorX() * TILE_SIZE) - 6, (BOARD_HEIGHT
+
+	if (_board._changeOn % 2 == 1) { // new
+	    SDL_Rect pos = { ((_board.getCursorX()) * TILE_SIZE) - 6, (BOARD_HEIGHT
+			- (_board.getCursorY() + 2) * TILE_SIZE) - _board.getStackOffset()
+			- 6, 44, 76 };
+	    SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite, &pos);
+	}
+	else {
+	    SDL_Rect pos = { (_board.getCursorX() * TILE_SIZE) - 6, (BOARD_HEIGHT
 			- (_board.getCursorY() + 1) * TILE_SIZE) - _board.getStackOffset()
 			- 6, 76, 44 };
 	SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite, &pos);
+	}
 }
 
 BoardRenderer::~BoardRenderer() {
@@ -445,4 +553,3 @@ BoardRenderer::~BoardRenderer() {
 	SDL_DestroyTexture(_loseText);
 	SDL_DestroyTexture(_winText);
 }
-
