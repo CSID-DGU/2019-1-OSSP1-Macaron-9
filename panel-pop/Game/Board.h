@@ -14,6 +14,7 @@
 #include "Block.h"
 #include "GarbageBlock.h"
 #include "BoardEventHandler.h"
+#include "../Config/ConfigHandler.h" // new
 
 class Game;
 
@@ -27,6 +28,8 @@ enum TileType {
     AIR, BLOCK, GARBAGE
 };
 
+
+/*
 class Item { // new
 public:
     Item();
@@ -36,6 +39,8 @@ public:
     int cross;
     int same_color;
 };
+*/
+
 
 class Board {
 public:
@@ -55,12 +60,20 @@ public:
         int spawnTimer;
     };
     
+/*    enum GameMode { // new
+	ENDLESS, AI, VS
+    };
+*/
     enum ItemState { // new
-	BOMB, CROSS, SAME_COLOR
+	NOITEM, BOMB, CROSS, SAME_COLOR
     };
 
     enum BoardState {
         RUNNING, COUNTDOWN, WON, GAME_OVER // , P1WON, P2WON // new
+    };
+
+    enum GameMode {	// final level 유지하기 위함
+	Endless, VS, AI		
     };
 
     Board(Game*);
@@ -70,14 +83,28 @@ public:
     
     virtual ~Board();
 
+    int _changeOn; // new
+    int is1p();		// 1p인지 아닌지 판단
+
     void tick();
     void inputMoveCursor(Direction);
     void inputSwapBlocks();
     void inputForceStackRaise();
-    void inputBomb(); // new
-    void inputCross();	// new
-    void inputSameColor(); // new
     void queueGarbage(bool, int, GarbageBlockType);
+
+    void inputChange(); // new
+    void inputColSwapBlocks(); // new
+    bool colSwappable(int, int); // new
+    void swapColBlocks(int, int); // new
+    bool changeOnState(); // new
+
+    void inputP1Bomb(); // new
+    void inputP1Cross();	// new
+    void inputP1SameColor(); // new
+    void inputP2Bomb(); // new
+    void inputP2Cross();	// new
+    void inputP2SameColor(); // new
+
 
     static const int BASE_EXPLOSION_TICKS = 61;
     static const int ADD_EXPL_TICKS = 9; //the total explosion time for a combo is 61 + 9 * n, where n is the  number of blocks
@@ -119,13 +146,27 @@ public:
     void win();
     Game& getGame() const;
     uint32_t getTime() const;
-    Item _item; // new
+
+
+/* -------- Item -------- */
+    int _bomb; // new
+    int _cross; // new
+    int _same_color; // new
+/* -------- Item -------- */
+
+    GameMode _mode;	// new
+
+
+
+   int _stackRaiseTicks; //ticks to raise stack one step
 
 private:
     Tile _tiles[BOARD_HEIGHT][BOARD_WIDTH];
     Tile _bufferRow[BOARD_WIDTH];
     std::list<GarbageBlock> _garbageBlocks;
     std::list<GarbageSpawn> _garbageQueue;
+
+//    GameMode _mode; // new
 
     ItemState _itemstate; // new
     Game* _game;
@@ -137,7 +178,7 @@ private:
     int _cursorX, _cursorY;
     int _tickMatched; //how many blocks got matched this tick
     int _stackOffset;
-    int _stackRaiseTicks; //ticks to raise stack one step
+ //   int _stackRaiseTicks; //ticks to raise stack one step
     int _stackRaiseTimer;
     bool _stackRaiseForced;
     int _graceTimer;
@@ -179,6 +220,9 @@ private:
     void sendEvents();
     void chainScoring();
     void comboScoring();
+
+
+
 };
 
 #endif /* BOARD_H_ */
