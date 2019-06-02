@@ -59,12 +59,49 @@ void KeyboardController::tick() {
     }
 
     if (input.keyDown(_config.swap)) {
-        _board.inputSwapBlocks();
+	if (_board.changeOnState()) _board.inputColSwapBlocks(); // new
+	else _board.inputSwapBlocks();
     }
-    if (input.keyPressed(_config.raiseStack)) {
 
+    if (input.keyDown(_config.change)) { // new
+	_board._changeOn++;
+    }
+
+    if (input.keyPressed(_config.raiseStack)) {
         _board.inputForceStackRaise();
     }
+
+    if (input.keyDown(_config.bomb)) {
+        if (input.keyDown(SDL_SCANCODE_Q)) {
+	    _board.inputP1Bomb(); // new
+        }
+        else if (input.keyDown(SDL_SCANCODE_I)) {
+	    _board.inputP2Bomb(); // new
+    	}
+    }
+
+    if (input.keyDown(_config.cross)) {
+	if (input.keyDown(SDL_SCANCODE_W)) {
+	    _board.inputP1Cross(); // new
+	}
+
+	else if (input.keyDown(SDL_SCANCODE_O)) {
+	    _board.inputP2Cross(); // new
+	}
+    }
+
+    if (input.keyDown(_config.samecolor)) {
+	if (input.keyDown(SDL_SCANCODE_E)) {
+	    _board.inputP1SameColor();	// new
+	}
+
+	else if (input.keyDown(SDL_SCANCODE_P)) {
+	    _board.inputP2SameColor();	// new
+	}
+    }
+
+
+
 
     //debug stuff...
     if (input.keyDown(SDL_SCANCODE_1)) {
@@ -92,4 +129,3 @@ void KeyboardController::tick() {
 
 KeyboardController::~KeyboardController() {
 }
-
