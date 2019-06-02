@@ -19,6 +19,7 @@
 #include "../States/VsGameState.h"
 #include "../States/AIGameState.h"
 #include "MenuItem.h"
+#include "../Config/ConfigHandler.h" // new
 
 MainMenu::MainMenu() {
     addItem(
@@ -52,7 +53,16 @@ MainMenu::~MainMenu() {
 }
 
 void MainMenu::render() const {
+	/* ----------- reset number of item ----------- */ // new
+	    ConfigHandler::getInstance().setNumberOfP1Bomb(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP1Cross(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP1SameColor(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2Bomb(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2Cross(0); // new
+    	    ConfigHandler::getInstance().setNumberOfP2SameColor(0); // new
 
+    	    ConfigHandler::getInstance().saveConfig(); // new  
+	/* ----------- reset number of item ----------- */
     int x = 311;
     int y = 200;
 
