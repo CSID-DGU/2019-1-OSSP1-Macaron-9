@@ -28,6 +28,8 @@ EndlessGame::~EndlessGame() {
 }
 
 void EndlessGame::reset() {
+   // _board._mode = Board::Endless;		////////////////////////////////
+
     _state = State::RUNNING;
     _startTime = SDL_GetTicks();
     _board = _board.reset();
@@ -36,6 +38,9 @@ void EndlessGame::reset() {
 }
 
 void EndlessGame::tick() {
+
+ //   _board._mode = Board::Endless;		////////////////////////////////
+
     if (_board.getState() == Board::COUNTDOWN) {
         _eventHandler->countdown(getTime());
     }
@@ -79,14 +84,8 @@ int EndlessGame::getFinalLevel() const { // new
 
 void EndlessGame::handleEnd() {
     if (_board.getState() == Board::GAME_OVER) {
-	
-	if (_finalLevel == 11) { // new
-	    ConfigHandler::getInstance().setEndlessFinalLevel(0);
-	}
 
-	else { // new
-	    ConfigHandler::getInstance().setEndlessFinalLevel(_finalLevel);
-	}
+	ConfigHandler::getInstance().setEndlessFinalLevel(_finalLevel); // new
 
         ConfigHandler::getInstance().setEndlessHighScore(_highScore);
         ConfigHandler::getInstance().saveConfig();
