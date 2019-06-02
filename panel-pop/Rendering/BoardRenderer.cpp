@@ -48,28 +48,6 @@ BoardRenderer::BoardRenderer(const Board& board) :
 			_SDLContext._fontSquare);
 
 
-/*
-	// new 아이템 개수 나타냄
-
-	_p1bomb = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 },
-			_SDLContext._fontSquare);
-	_p1cross = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP1Cross()), { 255, 255, 255 },
-			_SDLContext._fontSquare);
-	_p1samecolor = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP1SameColor()), { 255, 255, 255 },
-			_SDLContext._fontSquare);
-
-	_p2bomb = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP2Bomb()), { 255, 255, 255 },
-			_SDLContext._fontSquare);
-	_p2cross = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP2Cross()), { 255, 255, 255 },
-			_SDLContext._fontSquare);
-	_p2samecolor = _SDLContext.makeTextureFromFont(to_string(ConfigHandler::getInstance().getNumberOfP2SameColor()), { 255, 255, 255 },
-			_SDLContext._fontSquare);
-
-*/
-
-
-
-
 
 }
 
@@ -123,45 +101,6 @@ void BoardRenderer::drawGameOver() {
 
 
 
-
-
-//void BoardRenderer::ItemNum() {
-/*
-	SDL_Rect pos = { 5, 10 };
-	SDL_QueryTexture(_p1bomb, NULL, NULL, &pos.w, &pos.h);
-	//pos.x = 5;
-	SDL_RenderCopy(_SDLRenderer, _p1bomb, NULL, &pos);
-*/
-
-	//_p1bomb = to_string(ConfigHandler::getInstance().getNumberOfP1Bomb());
-
-
-//	SDL_Rect sprite = { 0, 410, 150, 70 };
-//	SDL_Rect pos = { 20, 20, 20, 20 };
-//	SDL_RenderCopy(_SDLRenderer, _spriteSheet, &sprite, &pos);
-
-	//int x = pos.x + 20;
-	//int y = pos.y + 8;
-
-	//_SDLContext.renderText(to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 }, _SDLContext._fontPs, 20,	20);
-
-
-
-	//	_SDLContext.renderText(to_string(ConfigHandler::getInstance().getNumberOfP1Bomb()), { 255, 255, 255 },
-	//			_SDLContext._fontSquare, 10, 10);
-
-	//	_SDLContext.renderText("PUSH START", { 255, 255, 255 },
-	//			_SDLContext._fontSquare, 134, 342);
-
-//}
-
-
-
-
-
-
-
-
 SDL_Texture* BoardRenderer::renderBoard() {
 	SDL_SetRenderTarget(_SDLRenderer, _texture);
 	SDL_SetRenderDrawColor(_SDLRenderer, 0xFF, 0xFF, 0xFF, 0x00);
@@ -171,7 +110,7 @@ SDL_Texture* BoardRenderer::renderBoard() {
 	drawBufferRow();
 	drawGarbageBlocks();
 
-	//if (_board.getState() == Board::RUNNING)			// newf
+	//if (_board.getState() == Board::RUNNING)			// new
 	//	ItemNum();
 
 	//drawGrid();
@@ -302,7 +241,7 @@ SDL_Rect BoardRenderer::getBlockSprite(const Block& block) {
 	}
 	if (block._state == EXPLODING) {
 
-			if (_board.getItemState() == Board::BOMB) { // new
+			if (_board.getItemState() == Board::BOMB) { // BOMB 스프라이트 나타내는 부분
 			SDL_Rect sprite = { 245, 320, 100, 100 };
 			//if (_board.getTime() % (2 * CURSOR_ANIM_MS) >= CURSOR_ANIM_MS) {
 			//	sprite.x += 100;
