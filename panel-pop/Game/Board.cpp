@@ -24,7 +24,8 @@ _cursorX(2),
 _cursorY(5),
 _tickMatched(0),
 _stackOffset(0),
-_stackRaiseTicks(ConfigHandler::getInstance().getEndlessFinalLevel()), // modified
+//_stackRaiseTicks(is1p()), // modified
+_stackRaiseTicks(11 - ConfigHandler::getInstance().getEndlessFinalLevel()),
 _stackRaiseTimer(0),
 _stackRaiseForced(false),
 _graceTimer(0),
@@ -34,17 +35,29 @@ _tickChainEnd(false),
 _lastChain(0),
 _blockOnTopRow(false),
 _panic(false),
+_itemstate(NOITEM), // new
+_changeOn(0), // new. initialize count value (check change)
 _score(0) {
     fillRandom();
     fillBufferRow();
 }
 
-Item::Item() {
-    // count = count + 1; // new
-    bomb = 0;
-    cross = 0;
-    same_color = 0;
+// 1p모드인지 아닌지를 판단하는 함수
+int Board::is1p() {	// new
+    cout <<_mode <<endl;
+
+    if (_mode == Board::Endless){
+cout << 1 << endl;
+	return (11 - ConfigHandler::getInstance().getEndlessFinalLevel());
+    //else if (_mode == Board::VS || _mode == Board::AI)
+	//return 10;
 }
+    else {
+cout << 2 << endl;
+	return 10;
+}
+}
+
 
 void Board::setEventHandler(BoardEventHandler* eh) {
     _eventHandler = eh;
@@ -199,11 +212,19 @@ void Board::inputMoveCursor(Direction d) {
             }
             break;
         case RIGHT:
-            if (_cursorX + 1 < BOARD_WIDTH - 1) {
-                ++_cursorX;
-                _eventHandler->cursorMove();
+            if (changeOnState()) { // new
+		if (_cursorX + 1 < BOARD_WIDTH) {
+                    ++_cursorX;
+                    _eventHandler->cursorMove();
+		}
+	    }
+	    else {
+		if (_cursorX + 1 < BOARD_WIDTH - 1) {
+		    ++_cursorX;
+		    _eventHandler->cursorMove();
+		}
             }
-            break;
+	    break;
         case LEFT:
             if (_cursorX - 1 >= 0) {
                 --_cursorX;
@@ -276,60 +297,318 @@ void Board::inputSwapBlocks() {
     _eventHandler->swap();
 }
 
-void Board::inputBomb() {		// new
+bool Board::changeOnState() { // new
+    if (_changeOn % 2 == 0) return false;
+    else return true;
+} // check change key
+
+void Board::inputP1Bomb() { // new
     if (_state != RUNNING) {
 	return;
     }
 
-    //_tiles[_cursorY][_cursorX].b._state = EXPLODING;
-    if (_item.bomb != 0) {
-	    for (int i = _cursorY - 1; i <= _cursorY + 1; i++) {
-		for (int j = _cursorX - 1; j <= _cursorX + 1; j++) {
-		    _tiles[i][j].b._state = MATCHED;	
+    if (_bomb != 0) {
+	_itemstate = BOMB;
+	int matches = 1;
+	bool chain = false;
+	bool match = false;
+
+	for (int row = _cursorY - 1; row <= _cursorY + 1; row++) {
+	    for (int col = _cursorX - 1; col <= _cursorX + 1; col++) {
+		Tile& tile = _tiles[row][col];
+
+		_tiles[row][col].b._state = MATCHED;
+		++_tickMatched;		    
+
+		tile.b._explOrder = matches - 1;
+
+		if (tile.b._chain && !chain) { chain = true; }
+
+		if (!match) {
+		    match = true;
+		    _tickMatchCol = col;
+		    _tickMatchRow = row;
 		}
-    	    }
-    //handleMatchedBlocks();
 
-//    _itemstate = BOMB;
-    _item.bomb--;
-    }
-    cout << "number of item (bomb) = " << _item.bomb << endl;
-}
+		tile.b._state = EXPLODING;
+		tile.b._explosionTimer = 0;
+		tile.b._explosionAnimTicks = BASE_EXPLOSION_TICKS + matches * ADD_EXPL_TICKS;
+		tile.b._explosionTicks = BASE_EXPLOSION_TICKS + _tickMatched * ADD_EXPL_TICKS;
+		triggerNeighbors(row, col);
+		++matches;
 
-void Board::inputCross() {		// new
-    if (_state != RUNNING) {
-        return;
-    }
-
-   for (int i=0; i<BOARD_WIDTH; i++)
-	_tiles[_cursorY][i].b._state = MATCHED;
-}
-
-void Board::inputSameColor() {		// new
-    if (_state != RUNNING) {
-        return;
-    }
-
-    for (int i = 0; i < BOARD_WIDTH; i++) {
-	for (int j = 0; j < BOARD_HEIGHT; j++) {
-	    if (_tiles[_cursorX][_cursorY].b._color == _tiles[i][j].b._color)
-		_tiles[i][j].b._state = MATCHED;
+		if (tile.b._state == NORMAL && !tile.b._falling && tile.b._chain) {
+		    tile.b._chain = false;
+	        }
+	    }
+	    if (chain) {
+	        ++_chainCounter;
+	        _tickChain = true;
+	        chainScoring();
+	    }
 	}
+
+        _bomb--;
+	ConfigHandler::getInstance().setNumberOfP1Bomb(_bomb);		// new
+	    ConfigHandler::getInstance().saveConfig(); // new
+    }
+    
+  //  _itemstate = NOITEM;
+}
+
+void Board::inputP1Cross() {		// new
+    if (_state != RUNNING) {
+        return;
     }
 
-//    samecolor--;
-    _itemstate = SAME_COLOR;
+    if (_cross != 0) {
+	_itemstate = CROSS;
+	int matches = 1;
+	bool chain = false;
+	bool match = false;
+	    for (int i = 0; i < BOARD_WIDTH; i++) {
+		Tile& tile = _tiles[_cursorY][i];
+		_tiles[_cursorY][i].b._state = MATCHED;
+		++_tickMatched;		    
+		tile.b._explOrder = matches - 1;
+		if (tile.b._chain && !chain) { chain = true; }
+		if (!match) {
+		    match = true;
+		    _tickMatchCol = i;
+		}
+		tile.b._state = EXPLODING;
+		tile.b._explosionTimer = 0;
+		tile.b._explosionAnimTicks = BASE_EXPLOSION_TICKS + matches * ADD_EXPL_TICKS;
+		tile.b._explosionTicks = BASE_EXPLOSION_TICKS + _tickMatched * ADD_EXPL_TICKS;
+		triggerNeighbors(_cursorY, i);
+		++matches;
+
+		if (tile.b._state == NORMAL && !tile.b._falling && tile.b._chain) {
+		    tile.b._chain = false;
+	        }
+	    }
+	if (chain) {
+	    ++_chainCounter;
+	    _tickChain = true;
+	    chainScoring();
+	}
+	_cross--;
+	ConfigHandler::getInstance().setNumberOfP1Cross(_cross);		// new
+	    ConfigHandler::getInstance().saveConfig(); // new
+    }
+}
+
+void Board::inputP1SameColor() {		// new
+    if (_state != RUNNING) {
+        return;
+    }
+
+    if (_same_color != 0) {
+	_itemstate = SAME_COLOR;
+	int matches = 1;
+	bool chain = false;
+	bool match = false;
+
+	    for (int i = 0; i < BOARD_WIDTH; i++) {
+		for (int j = 0; j < BOARD_HEIGHT; j++) {
+		Tile& tile = _tiles[i][j];
+
+		if (_tiles[_cursorY][_cursorX].b._color == _tiles[i][j].b._color) {
+		    _tiles[i][j].b._state = MATCHED;
+		    ++_tickMatched;		    
+		}
+
+        	if (tile.type == BLOCK && tile.b._state == MATCHED) {
+		    tile.b._explOrder = matches - 1;
+
+		    if (tile.b._chain && !chain) { chain = true; }
+
+		    if (!match) {
+			match = true;
+			_tickMatchCol = i;
+			_tickMatchRow = j;
+		    }
+
+		    tile.b._state = EXPLODING;
+		    tile.b._explosionTimer = 0;
+		    tile.b._explosionAnimTicks = BASE_EXPLOSION_TICKS + matches * ADD_EXPL_TICKS;
+		    tile.b._explosionTicks = BASE_EXPLOSION_TICKS + _tickMatched * ADD_EXPL_TICKS;
+		    triggerNeighbors(j, i);
+		    ++matches;
+		}
+
+		if (tile.b._state == NORMAL && !tile.b._falling && tile.b._chain) {
+		    tile.b._chain = false;
+	        }
+	        }
+	    }
+
+	    if (chain) {
+	        ++_chainCounter;
+	        _tickChain = true;
+	        chainScoring();
+	    }
+
+        _same_color--;
+	ConfigHandler::getInstance().setNumberOfP1SameColor(_same_color); // new
+	ConfigHandler::getInstance().saveConfig(); // new
+    }
 } 
 
-/*
-int Board::getHammer() { // new
-    return _item.hammer;
+void Board::inputP2Bomb() { // new
+    if (_state != RUNNING) {
+	return;
+    }
+
+    if (_bomb != 0) {
+	_itemstate = BOMB;
+	int matches = 1;
+	bool chain = false;
+	bool match = false;
+
+	for (int row = _cursorY - 1; row <= _cursorY + 1; row++) {
+	    for (int col = _cursorX - 1; col <= _cursorX + 1; col++) {
+		Tile& tile = _tiles[row][col];
+
+		_tiles[row][col].b._state = MATCHED;
+		++_tickMatched;		    
+
+		tile.b._explOrder = matches - 1;
+
+		if (tile.b._chain && !chain) { chain = true; }
+
+		if (!match) {
+		    match = true;
+		    _tickMatchCol = col;
+		    _tickMatchRow = row;
+		}
+
+		tile.b._state = EXPLODING;
+		tile.b._explosionTimer = 0;
+		tile.b._explosionAnimTicks = BASE_EXPLOSION_TICKS + matches * ADD_EXPL_TICKS;
+		tile.b._explosionTicks = BASE_EXPLOSION_TICKS + _tickMatched * ADD_EXPL_TICKS;
+		triggerNeighbors(row, col);
+		++matches;
+
+		if (tile.b._state == NORMAL && !tile.b._falling && tile.b._chain) {
+		    tile.b._chain = false;
+	        }
+	    }
+	    if (chain) {
+	        ++_chainCounter;
+	        _tickChain = true;
+	        chainScoring();
+	    }
+	}
+
+        _bomb--;
+	ConfigHandler::getInstance().setNumberOfP2Bomb(_bomb);		// new
+	ConfigHandler::getInstance().saveConfig(); // new
+    }
+    
+    _itemstate = NOITEM;
 }
 
-void Board::setHammer(Item _item) { // new
-    this->hammer = 0;
+void Board::inputP2Cross() {		// new
+    if (_state != RUNNING) {
+        return;
+    }
+
+    if (_cross != 0) {
+	_itemstate = CROSS;
+	int matches = 1;
+	bool chain = false;
+	bool match = false;
+	    for (int i = 0; i < BOARD_WIDTH; i++) {
+		Tile& tile = _tiles[_cursorY][i];
+		_tiles[_cursorY][i].b._state = MATCHED;
+		++_tickMatched;		    
+		tile.b._explOrder = matches - 1;
+		if (tile.b._chain && !chain) { chain = true; }
+		if (!match) {
+		    match = true;
+		    _tickMatchCol = i;
+		}
+		tile.b._state = EXPLODING;
+		tile.b._explosionTimer = 0;
+		tile.b._explosionAnimTicks = BASE_EXPLOSION_TICKS + matches * ADD_EXPL_TICKS;
+		tile.b._explosionTicks = BASE_EXPLOSION_TICKS + _tickMatched * ADD_EXPL_TICKS;
+		triggerNeighbors(_cursorY, i);
+		++matches;
+
+		if (tile.b._state == NORMAL && !tile.b._falling && tile.b._chain) {
+		    tile.b._chain = false;
+	        }
+	    }
+	if (chain) {
+	    ++_chainCounter;
+	    _tickChain = true;
+	    chainScoring();
+	}
+
+	_cross--;
+	ConfigHandler::getInstance().setNumberOfP2Cross(_cross);		// new
+	ConfigHandler::getInstance().saveConfig(); // new
+    }
 }
-*/
+
+void Board::inputP2SameColor() {		// new
+    if (_state != RUNNING) {
+        return;
+    }
+
+    if (_same_color != 0) {
+	_itemstate = SAME_COLOR;
+	int matches = 1;
+	bool chain = false;
+	bool match = false;
+
+	    for (int i = 0; i < BOARD_WIDTH; i++) {
+		for (int j = 0; j < BOARD_HEIGHT; j++) {
+		Tile& tile = _tiles[i][j];
+
+		if (_tiles[_cursorY][_cursorX].b._color == _tiles[i][j].b._color) {
+		    _tiles[i][j].b._state = MATCHED;
+		    ++_tickMatched;		    
+		}
+
+        	if (tile.type == BLOCK && tile.b._state == MATCHED) {
+		    tile.b._explOrder = matches - 1;
+
+		    if (tile.b._chain && !chain) { chain = true; }
+
+		    if (!match) {
+			match = true;
+			_tickMatchCol = i;
+			_tickMatchRow = j;
+		    }
+
+		    tile.b._state = EXPLODING;
+		    tile.b._explosionTimer = 0;
+		    tile.b._explosionAnimTicks = BASE_EXPLOSION_TICKS + matches * ADD_EXPL_TICKS;
+		    tile.b._explosionTicks = BASE_EXPLOSION_TICKS + _tickMatched * ADD_EXPL_TICKS;
+		    triggerNeighbors(j, i);
+		    ++matches;
+		}
+
+		if (tile.b._state == NORMAL && !tile.b._falling && tile.b._chain) {
+		    tile.b._chain = false;
+	        }
+	        }
+	    }
+
+	    if (chain) {
+	        ++_chainCounter;
+	        _tickChain = true;
+	        chainScoring();
+	    }
+
+        _same_color--;
+	ConfigHandler::getInstance().setNumberOfP2SameColor(_same_color); // new
+	ConfigHandler::getInstance().saveConfig(); // new
+    }
+} 
+
 void Board::initTick() {
     _tickMatched = 0;
     _tickChain = false;
@@ -528,7 +807,8 @@ void Board::handleBlockTimers() {
                 tile.b._swapTimer++;
                 if (tile.b._swapTimer >= SWAP_DELAY) {
                     if (tile.b._state == SWAPPING_RIGHT) {
-                        swapBlocks(row, col);
+                        if (changeOnState()) swapColBlocks(row, col); // new
+			else swapBlocks(row, col);
                     }
                 }
             }
@@ -951,6 +1231,7 @@ void Board::sendEvents() {
     }
 }
 
+
 bool Board::isPanic() const {
     return _panic;
 }
@@ -987,3 +1268,45 @@ void Board::comboScoring() {
     }
 }
 
+void Board::inputColSwapBlocks() { // new. inputSwapBlocks() copy
+    if (_state != RUNNING) {
+        return;
+    }
+    if (!(colSwappable(_cursorY, _cursorX) && colSwappable(_cursorY + 1, _cursorX))
+            || !(_tiles[_cursorY][_cursorX].type == BLOCK
+            || _tiles[_cursorY + 1][_cursorX].type == BLOCK)) {
+        return;
+    }
+    _tiles[_cursorY][_cursorX].b._state = SWAPPING_RIGHT;
+    _tiles[_cursorY + 1][_cursorX].b._state = SWAPPING_LEFT;
+
+    _eventHandler->swap();
+}
+
+
+bool Board::colSwappable(int row, int col) { // new. swappable() copy
+    //prevent block from swapping into empty space with a block above it
+    Tile& t = _tiles[row][col];
+    return (((t.type == AIR && _tiles[row][col].type != BLOCK)
+            || t.type == BLOCK) && t.b._state == NORMAL);
+}
+
+void Board::swapColBlocks(int row, int col) { // new. swapBlocks() copy
+    Tile& swapRight = _tiles[row][col];
+    Tile& swapLeft = _tiles[row + 1][col];
+    if (swapLeft.b._state == SWAPPING_LEFT) {
+        Tile tmp = swapLeft;
+        swapLeft = swapRight;
+        swapRight = tmp;
+    } else {
+        std::cout << "CAN'T SWAP!!\n";
+    }
+    swapRight.b._swapTimer = 0;
+    swapRight.b._state = NORMAL;
+    swapLeft.b._swapTimer = 0;
+    swapLeft.b._state = NORMAL;
+}
+
+void Board::inputChange() { // new
+    _changeOn++;
+}
