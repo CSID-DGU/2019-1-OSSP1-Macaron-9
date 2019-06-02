@@ -8,6 +8,8 @@ _scanner(board) {
 }
 
 void AIBoardController::tick() {
+    _board._stackRaiseTicks=10;		// AI 모드에서 게임 속도 초기화
+	
     if (_board.getState() != Board::BoardState::RUNNING || _board.getTicksRun() % 5 != 0)
 		return;
     if (!_inputQueue.empty()) {
@@ -52,7 +54,7 @@ void AIBoardController::doInput(InputAction action) {
     }
 }
 
-void AIBoardController::doBlockMove(int x, int y, int dx, int dy) {		// �¿�� �����̴� ��
+void AIBoardController::doBlockMove(int x, int y, int dx, int dy) {		// ÁÂ¿ì·Î ¿òÁ÷ÀÌ´Â °Í
     if (dy > y) {
         throw std::invalid_argument("Can't move block upwards");
     }
