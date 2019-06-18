@@ -41,7 +41,7 @@ void AIBoardController::doInput(InputAction action) {
             _board.inputMoveCursor(Direction::DOWN);
             break;
         case (LEFT):
-            _board.inputMoveCursor(1::LEFT);
+            _board.inputMoveCursor(Direction::LEFT);
             break;
         case (SWAP):
             _board.inputSwapBlocks();
