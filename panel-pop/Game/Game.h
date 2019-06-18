@@ -20,7 +20,7 @@ class Game {
 public:
 
     enum class State {
-        RUNNING, PAUSED, ENDED
+        RUNNING, PAUSED, ENDED, P1WON, P2WON 
     };
 
     Game(GameEventHandler*);
