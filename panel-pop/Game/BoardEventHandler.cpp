@@ -90,8 +90,6 @@ void BoardEventHandler::blockExplode(int x, int y, int stackOffset, int order,
 
 	Mix_PlayChannel(-1, _SDLContext._sfxPop[soundOrder + 10 * (soundChain - 1)],
 			0);
-}void BoardEventHandler::swap() {
-	Mix_PlayChannel(-1, _SDLContext._sfxSwap, 0);
 }
 
 void BoardEventHandler::cursorMove() {
@@ -102,8 +100,8 @@ void BoardEventHandler::cursorMove() {
 }
 
 void BoardEventHandler::swap() {
-	Mix_PlayChannel(-1, _SDLContext._sfxSwap, 0);		// (Ã¤³Î ¹øÈ£, ·ÎµåµÈ ¸®¼Ò½º, Àç»ı½ÃÅ³ È½¼ö)
-}														// -1:³î°í ÀÖ´Â Ã¤³Î Àç»ı     0 : 1¹ø
+	Mix_PlayChannel(-1, _SDLContext._sfxSwap, 0);		// (ì±„ë„ ë²ˆí˜¸, ë¡œë“œëœ ë¦¬ì†ŒìŠ¤, ì¬ìƒì‹œí‚¬ íšŸìˆ˜)
+}														// -1:ë†€ê³  ìˆëŠ” ì±„ë„ ì¬ìƒ     0 : 1ë²ˆ
 
 void BoardEventHandler::blockFall() {
 	_blockFall = true;
